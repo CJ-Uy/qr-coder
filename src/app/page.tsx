@@ -31,8 +31,6 @@ export default function Home() {
           <span>◆ LOGO EMBED</span>
           <span>◆ PNG · SVG · JPEG · WEBP</span>
           <span>◆ 100% CLIENT-SIDE</span>
-          <span>◆ DIRECT ENCODING</span>
-          <span>◆ MULTIPLE DOT STYLES</span>
         </div>
       </header>
 
@@ -126,22 +124,17 @@ export default function Home() {
           background: var(--fg);
           color: var(--bg);
           padding: 8px 0;
-          overflow: hidden;
-          white-space: nowrap;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.15em;
           border-top: 2px solid var(--border);
           border-bottom: 2px solid var(--border);
           display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
           gap: 32px;
-          animation: scroll 28s linear infinite;
         }
         .ticker span { padding: 0 16px; flex-shrink: 0; }
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
 
         .foot {
           margin-top: 32px;
