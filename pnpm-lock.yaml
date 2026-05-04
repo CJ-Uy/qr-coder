@@ -14,6 +14,9 @@ importers:
       next:
         specifier: 16.2.3
         version: 16.2.3(react-dom@19.1.5(react@19.1.5))(react@19.1.5)
+      qr-code-styling:
+        specifier: ^1.9.2
+        version: 1.9.2
       react:
         specifier: 19.1.5
         version: 19.1.5
@@ -36,6 +39,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.1.5
         version: 19.2.3(@types/react@19.2.14)
+      '@types/styled-jsx':
+        specifier: ^3.4.4
+        version: 3.4.4(react@19.1.5)
       eslint:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
@@ -1405,6 +1411,10 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
+
+  '@types/styled-jsx@3.4.4':
+    resolution: {integrity: sha512-PRRa7gU7ske4Vs7sKWrqfKnuIIS6E/Yj5oKyxuM11AwOKhH9HlbQ7cKGLluXkOXzpEoDJE+6kQMj3AE34/JooQ==}
+    deprecated: This is a stub types definition. styled-jsx provides its own type definitions, so you do not need this installed.
 
   '@typescript-eslint/eslint-plugin@8.59.1':
     resolution: {integrity: sha512-BOziFIfE+6osHO9FoJG4zjoHUcvI7fTNBSpdAwrNH0/TLvzjsk2oo8XSSOT2HhqUyhZPfHv4UOffoJ9oEEQ7Ag==}
@@ -2901,6 +2911,13 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  qr-code-styling@1.9.2:
+    resolution: {integrity: sha512-RgJaZJ1/RrXJ6N0j7a+pdw3zMBmzZU4VN2dtAZf8ZggCfRB5stEQ3IoDNGaNhYY3nnZKYlYSLl5YkfWN5dPutg==}
+    engines: {node: '>=18.18.0'}
+
+  qrcode-generator@1.5.2:
+    resolution: {integrity: sha512-pItrW0Z9HnDBnFmgiNrY1uxRdri32Uh9EjNYLPVC2zZ3ZRIIEqBoDgm4DkvDwNNDHTK7FNkmr8zAa77BYc9xNw==}
 
   qs@6.15.1:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
@@ -5054,6 +5071,14 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
+  '@types/styled-jsx@3.4.4(react@19.1.5)':
+    dependencies:
+      styled-jsx: 5.1.6(react@19.1.5)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+      - react
+
   '@typescript-eslint/eslint-plugin@8.59.1(@typescript-eslint/parser@8.59.1(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@eslint-community/regexpp': 4.12.2
@@ -6720,6 +6745,12 @@ snapshots:
       ipaddr.js: 1.9.1
 
   punycode@2.3.1: {}
+
+  qr-code-styling@1.9.2:
+    dependencies:
+      qrcode-generator: 1.5.2
+
+  qrcode-generator@1.5.2: {}
 
   qs@6.15.1:
     dependencies:

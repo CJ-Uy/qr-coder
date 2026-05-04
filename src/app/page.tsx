@@ -1,52 +1,172 @@
-import Image from "next/image";
+import QrGenerator from '@/components/QrGenerator';
 
 export default function Home() {
-	return (
-		<div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-			<main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-				<Image className="dark:invert" src="/next.svg" alt="Next.js logo" width={180} height={38} priority />
-				<ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-					<li className="mb-2 tracking-[-.01em]">
-						Get started by editing{" "}
-						<code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-							src/app/page.tsx
-						</code>
-						.
-					</li>
-					<li className="tracking-[-.01em]">Save and see your changes instantly.</li>
-				</ol>
+  return (
+    <main>
+      <header className="masthead">
+        <div className="masthead-inner">
+          <div className="brand">
+            <div className="logo-mark" aria-hidden="true">
+              <div className="dot" />
+              <div className="dot" />
+              <div className="dot" />
+              <div className="dot dot--big" />
+            </div>
+            <div>
+              <h1 className="display-font wordmark">QR/FORGE</h1>
+              <p className="tagline">No redirects · No tracking · Pure client-side</p>
+            </div>
+          </div>
+          <nav className="nav">
+            <span className="tag">v1.0</span>
+            <span className="status">
+              <span className="status-dot" /> READY
+            </span>
+          </nav>
+        </div>
+        <div className="ticker">
+          <span>◆ DIRECT ENCODING</span>
+          <span>◆ MULTIPLE DOT STYLES</span>
+          <span>◆ CUSTOM COLORS</span>
+          <span>◆ LOGO EMBED</span>
+          <span>◆ PNG · SVG · JPEG · WEBP</span>
+          <span>◆ 100% CLIENT-SIDE</span>
+          <span>◆ DIRECT ENCODING</span>
+          <span>◆ MULTIPLE DOT STYLES</span>
+        </div>
+      </header>
 
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
-				</div>
-			</main>
-			<footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-					Learn
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image aria-hidden src="/globe.svg" alt="Globe icon" width={16} height={16} />
-					Go to nextjs.org →
-				</a>
-			</footer>
-		</div>
-	);
+      <QrGenerator />
+
+      <footer className="foot">
+        <div className="foot-inner">
+          <span>BUILT WITH NEXT.JS · QR-CODE-STYLING</span>
+          <span>NO DATA LEAVES YOUR BROWSER</span>
+        </div>
+      </footer>
+
+      <style>{`
+        .masthead {
+          border-bottom: 2px solid var(--border);
+          background: var(--panel);
+          margin-bottom: 32px;
+        }
+        .masthead-inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 24px 32px;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .brand {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .logo-mark {
+          display: grid;
+          grid-template-columns: repeat(2, 14px);
+          grid-template-rows: repeat(2, 14px);
+          gap: 3px;
+          padding: 6px;
+          border: 2px solid var(--border);
+          background: var(--accent);
+        }
+        .logo-mark .dot {
+          background: var(--fg);
+        }
+        .logo-mark .dot--big {
+          background: var(--bg);
+          border: 2px solid var(--fg);
+          margin: -4px;
+          width: 18px;
+          height: 18px;
+        }
+        .wordmark {
+          font-size: 28px;
+          letter-spacing: -0.04em;
+          font-weight: 700;
+          line-height: 1;
+        }
+        .tagline {
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--muted);
+          margin-top: 4px;
+        }
+        .nav {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .status {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+        }
+        .status-dot {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          background: var(--accent-2);
+          border: 1px solid var(--border);
+          animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+
+        .ticker {
+          background: var(--fg);
+          color: var(--bg);
+          padding: 8px 0;
+          overflow: hidden;
+          white-space: nowrap;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          border-top: 2px solid var(--border);
+          border-bottom: 2px solid var(--border);
+          display: flex;
+          gap: 32px;
+          animation: scroll 28s linear infinite;
+        }
+        .ticker span { padding: 0 16px; flex-shrink: 0; }
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        .foot {
+          margin-top: 32px;
+          border-top: 2px solid var(--border);
+          background: var(--panel);
+        }
+        .foot-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 16px 32px;
+          display: flex;
+          justify-content: space-between;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: var(--muted);
+        }
+
+        @media (max-width: 600px) {
+          .masthead-inner { padding: 16px; flex-direction: column; gap: 12px; align-items: flex-start; }
+          .wordmark { font-size: 22px; }
+          .foot-inner { flex-direction: column; gap: 8px; padding: 16px; }
+        }
+      `}</style>
+    </main>
+  );
 }
