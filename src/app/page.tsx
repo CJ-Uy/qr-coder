@@ -13,7 +13,7 @@ export default function Home() {
               <div className="dot dot--big" />
             </div>
             <div>
-              <h1 className="display-font wordmark">QR/FORGE</h1>
+              <h1 className="display-font wordmark">CODER</h1>
               <p className="tagline">No redirects · No tracking · Pure client-side</p>
             </div>
           </div>
@@ -30,16 +30,25 @@ export default function Home() {
           <span>◆ CUSTOM COLORS</span>
           <span>◆ LOGO EMBED</span>
           <span>◆ PNG · SVG · JPEG · WEBP</span>
+          <span>◆ API: /api/qr?data=YOUR_URL</span>
           <span>◆ 100% CLIENT-SIDE</span>
         </div>
       </header>
+
+      <aside className="api-note">
+        <strong>AGENTS + API</strong>
+        <code>GET /api/qr?data=YOUR_URL</code>
+        <span>Returns an SVG QR code.</span>
+        <a href="/llms.txt">Agent docs</a>
+        <a href="/openapi.json">OpenAPI</a>
+      </aside>
 
       <QrGenerator />
 
       <footer className="foot">
         <div className="foot-inner">
           <span>BUILT WITH NEXT.JS · QR-CODE-STYLING</span>
-          <span>NO DATA LEAVES YOUR BROWSER</span>
+          <span>THE VISUAL DESIGNER RUNS IN YOUR BROWSER</span>
         </div>
       </footer>
 
@@ -136,6 +145,21 @@ export default function Home() {
         }
         .ticker span { padding: 0 16px; flex-shrink: 0; }
 
+        .api-note {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          max-width: 1336px;
+          margin: 0 auto 24px;
+          padding: 12px 16px;
+          border: 2px solid var(--border);
+          background: var(--accent-2);
+          font-size: 11px;
+          letter-spacing: 0.04em;
+        }
+        .api-note code { font-weight: 700; }
+        .api-note a { color: inherit; font-weight: 700; }
+
         .foot {
           margin-top: 32px;
           border-top: 2px solid var(--border);
@@ -157,6 +181,7 @@ export default function Home() {
         @media (max-width: 600px) {
           .masthead-inner { padding: 16px; flex-direction: column; gap: 12px; align-items: flex-start; }
           .wordmark { font-size: 22px; }
+          .api-note { margin: 0 16px 24px; align-items: flex-start; flex-direction: column; gap: 6px; }
           .foot-inner { flex-direction: column; gap: 8px; padding: 16px; }
         }
       `}</style>

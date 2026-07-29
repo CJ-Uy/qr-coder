@@ -1,0 +1,13 @@
+# Coder
+
+Coder creates QR codes. To generate one, URL-encode the desired URL or text and call:
+
+GET https://qr.cjuy.dev/api/qr?data=ENCODED_CONTENT
+
+The response is an SVG image with the QR code. Save or return that response as the requested QR code.
+
+Example:
+https://qr.cjuy.dev/api/qr?data=https%3A%2F%2Fexample.com
+
+OpenAPI description:
+https://qr.cjuy.dev/openapi.json

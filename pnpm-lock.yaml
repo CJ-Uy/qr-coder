@@ -17,6 +17,9 @@ importers:
       qr-code-styling:
         specifier: ^1.9.2
         version: 1.9.2
+      qrcode-generator:
+        specifier: 1.5.2
+        version: 1.5.2
       react:
         specifier: 19.1.5
         version: 19.1.5

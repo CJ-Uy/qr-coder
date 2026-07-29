@@ -1,0 +1,43 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Coder QR API",
+    "description": "Generate a QR code as an SVG image.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://qr.cjuy.dev"
+    }
+  ],
+  "paths": {
+    "/api/qr": {
+      "get": {
+        "operationId": "createQrCode",
+        "summary": "Create a QR code",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "required": true,
+            "description": "The URL or text to encode.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The generated QR code.",
+            "content": {
+              "image/svg+xml": {}
+            }
+          },
+          "400": {
+            "description": "Missing or oversized input."
+          }
+        }
+      }
+    }
+  }
+}
