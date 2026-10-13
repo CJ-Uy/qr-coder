@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import type QRCodeStyling from 'qr-code-styling';
+import { createDoodleQr } from '@/lib/doodle-qr';
 
 type DotType = 'square' | 'dots' | 'rounded' | 'extra-rounded' | 'classy' | 'classy-rounded';
 type CornerSquareType = 'square' | 'dot' | 'extra-rounded';
@@ -9,13 +10,14 @@ type CornerDotType = 'square' | 'dot';
 type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H';
 type FileExtension = 'png' | 'svg' | 'jpeg' | 'webp';
 
-const DOT_STYLES: { value: DotType; label: string }[] = [
+const DOT_STYLES: { value: DotType | 'doodles'; label: string }[] = [
   { value: 'square', label: 'Classic' },
   { value: 'dots', label: 'Dots' },
   { value: 'rounded', label: 'Rounded' },
   { value: 'extra-rounded', label: 'Extra Rounded' },
   { value: 'classy', label: 'Classy' },
   { value: 'classy-rounded', label: 'Classy Rounded' },
+  { value: 'doodles', label: 'Goofy Doodles' },
 ];
 
 const CORNER_SQUARE_STYLES: { value: CornerSquareType; label: string }[] = [
@@ -38,10 +40,12 @@ export default function QrGenerator() {
   const ref = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const doodleImageRef = useRef<HTMLImageElement>(null);
 
   const [data, setData] = useState('https://google.com');
   const [size, setSize] = useState(360);
-  const [dotType, setDotType] = useState<DotType>('rounded');
+  const [dotType, setDotType] = useState<DotType | 'doodles'>('rounded');
+  const [doodleSeed, setDoodleSeed] = useState(1);
   const [cornerSquareType, setCornerSquareType] = useState<CornerSquareType>('extra-rounded');
   const [cornerDotType, setCornerDotType] = useState<CornerDotType>('dot');
   const [dotColor, setDotColor] = useState('#0a0a0a');
@@ -53,6 +57,20 @@ export default function QrGenerator() {
   const [errorCorrection, setErrorCorrection] = useState<ErrorCorrectionLevel>('Q');
   const [downloadFormat, setDownloadFormat] = useState<FileExtension>('png');
   const [isReady, setIsReady] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
+  const isDoodle = dotType === 'doodles';
+  const doodle = useMemo(() => {
+    if (!isDoodle) return { svg: '', error: '' };
+    try {
+      return {
+        svg: createDoodleQr(data, { seed: doodleSeed, size, foreground: dotColor, background: bgColor }),
+        error: '',
+      };
+    } catch (error) {
+      return { svg: '', error: (error as Error).message };
+    }
+  }, [isDoodle, data, doodleSeed, size, dotColor, bgColor]);
+  const doodleSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(doodle.svg)}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +85,7 @@ export default function QrGenerator() {
         data,
         margin: 8,
         qrOptions: { errorCorrectionLevel: errorCorrection },
-        dotsOptions: { color: dotColor, type: dotType },
+        dotsOptions: { color: dotColor, type: dotType === 'doodles' ? 'square' : dotType },
         backgroundOptions: { color: bgColor },
         cornersSquareOptions: { color: dotColor, type: cornerSquareType },
         cornersDotOptions: { color: dotColor, type: cornerDotType },
@@ -91,7 +109,7 @@ export default function QrGenerator() {
   }, []);
 
   useEffect(() => {
-    if (!qrCodeRef.current) return;
+    if (!qrCodeRef.current || isDoodle) return;
     qrCodeRef.current.update({
       width: size,
       height: size,
@@ -112,16 +130,44 @@ export default function QrGenerator() {
   }, [
     data, size, dotType, cornerSquareType, cornerDotType,
     dotColor, bgColor, logoSrc, logoSize, logoMargin,
-    hideBackgroundDots, errorCorrection,
+    hideBackgroundDots, errorCorrection, isDoodle, isReady,
   ]);
 
-  const handleDownload = useCallback(() => {
-    if (!qrCodeRef.current || !data.trim()) return;
-    qrCodeRef.current.download({
-      name: `qrcode-${Date.now()}`,
-      extension: downloadFormat,
-    });
-  }, [downloadFormat, data]);
+  const handleDownload = useCallback(async () => {
+    if (!data.trim()) return;
+    setDownloadError('');
+    try {
+      if (!isDoodle) {
+        await qrCodeRef.current?.download({ name: `qrcode-${Date.now()}`, extension: downloadFormat });
+        return;
+      }
+      if (!doodle.svg) return;
+      let blob = new Blob([doodle.svg], { type: 'image/svg+xml' });
+      if (downloadFormat !== 'svg') {
+        const image = new Image();
+        image.src = doodleSrc;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas is unavailable');
+        context.drawImage(image, 0, 0, size, size);
+        blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(
+          result => result ? resolve(result) : reject(new Error('Image export failed')),
+          `image/${downloadFormat}`, 0.95,
+        ));
+        if (blob.type !== `image/${downloadFormat}`) throw new Error('Unsupported image format');
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `qrcode-doodles-${Date.now()}.${downloadFormat}`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      setDownloadError('Could not download this format. Try SVG or PNG.');
+    }
+  }, [downloadFormat, data, isDoodle, doodle.svg, doodleSrc, size]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -156,9 +202,9 @@ export default function QrGenerator() {
             value={data}
             onChange={(e) => setData(e.target.value)}
             rows={3}
-            placeholder="https://example.com"
+            placeholder={isDoodle ? 'a tiny secret or short link' : 'https://example.com'}
           />
-          <p className="hint">No redirects. The QR encodes your URL directly.</p>
+          <p className="hint">{isDoodle ? 'A few words or a short link leaves more room for big doodles.' : 'No redirects. The QR encodes your URL directly.'}</p>
         </div>
 
         <header className="section-header">
@@ -174,6 +220,7 @@ export default function QrGenerator() {
                 key={s.value}
                 className={dotType === s.value ? 'chip active' : 'chip'}
                 onClick={() => setDotType(s.value)}
+                aria-pressed={dotType === s.value}
                 type="button"
               >
                 {s.label}
@@ -182,7 +229,16 @@ export default function QrGenerator() {
           </div>
         </div>
 
-        <div className="row">
+        {isDoodle && (
+          <div className="field doodle-controls">
+            <p className="hint">Big monsters. Googly eyes. Same secret.</p>
+            <p className="hint">Experimental doodle art: keep your secret short.</p>
+            <p className="hint">Keep a dark foreground on a light background. Test with your phone before sharing.</p>
+            <a className="hint" href="https://www.youtube.com/watch?v=RYqX8CNgzwM&t=1670" target="_blank" rel="noreferrer">Inspired by Noel Friedrich’s artsy QR codes</a>
+          </div>
+        )}
+
+        {!isDoodle && <div className="row">
           <div className="field">
             <label>Corner Frame</label>
             <select
@@ -205,7 +261,7 @@ export default function QrGenerator() {
               ))}
             </select>
           </div>
-        </div>
+        </div>}
 
         <header className="section-header">
           <span className="tag">03</span>
@@ -223,6 +279,7 @@ export default function QrGenerator() {
           </div>
         </div>
 
+        {!isDoodle && <>
         <header className="section-header">
           <span className="tag">04</span>
           <h2 className="display-font section-title">Logo</h2>
@@ -293,14 +350,15 @@ export default function QrGenerator() {
             </div>
           </>
         )}
+        </>}
 
         <header className="section-header">
           <span className="tag">05</span>
-          <h2 className="display-font section-title">Advanced</h2>
+          <h2 className="display-font section-title">{isDoodle ? 'Canvas' : 'Advanced'}</h2>
         </header>
 
-        <div className="row">
-          <div className="field">
+        <div className={isDoodle ? '' : 'row'}>
+          {!isDoodle && <div className="field">
             <label>Error Correction</label>
             <select
               value={errorCorrection}
@@ -311,7 +369,7 @@ export default function QrGenerator() {
               <option value="Q">Quartile (~25%)</option>
               <option value="H">High (~30%)</option>
             </select>
-          </div>
+          </div>}
           <div className="field">
             <label>Size — {size}px</label>
             <input
@@ -327,24 +385,39 @@ export default function QrGenerator() {
       </section>
 
       {/* RIGHT — Preview & Export */}
-      <section className="panel preview">
+      <section className={`panel preview${isDoodle ? ' doodle-preview' : ''}`}>
         <header className="section-header preview-header">
           <span className="tag">PREVIEW</span>
-          <h2 className="display-font section-title">Output</h2>
+          <h2 className="display-font section-title">{isDoodle ? 'Doodle party' : 'Output'}</h2>
         </header>
 
         <div className="qr-stage">
           <div className="qr-frame" style={{ background: bgColor }}>
-            <div ref={ref} className="qr-canvas" />
-            {!isReady && <div className="loading">Loading…</div>}
+            <div ref={ref} className="qr-canvas" style={{ display: isDoodle ? 'none' : undefined }} />
+            {isDoodle && doodle.svg && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img ref={doodleImageRef} className="doodle-image" src={doodleSrc} width={size} height={size} alt="Your randomized doodle QR code" />
+            )}
+            {isDoodle && doodle.error && <p className="preview-error" role="alert">{doodle.error}</p>}
+            {!isDoodle && !isReady && <div className="loading">Loading…</div>}
           </div>
-          <div className="qr-meta">
+          {isDoodle ? (
+            <>
+              <button type="button" className="file-button shuffle-btn" onClick={() => {
+                setDoodleSeed(seed => seed + 1);
+                doodleImageRef.current?.scrollIntoView({ block: 'center' });
+              }} disabled={!doodle.svg}>
+                Randomize doodles
+              </button>
+              <p className="hint">New little weirdos. Same message.</p>
+            </>
+          ) : <div className="qr-meta">
             <span>{size}×{size}px</span>
             <span>·</span>
             <span>EC: {errorCorrection}</span>
             <span>·</span>
             <span>{dotType}</span>
-          </div>
+          </div>}
         </div>
 
         <div className="export">
@@ -367,11 +440,12 @@ export default function QrGenerator() {
           <button
             className="primary download-btn"
             onClick={handleDownload}
-            disabled={!isReady || !data.trim()}
+            disabled={(!isDoodle && !isReady) || !data.trim() || (isDoodle && !doodle.svg)}
             type="button"
           >
             ↓ Download .{downloadFormat}
           </button>
+          {downloadError && <p className="hint" role="alert">{downloadError}</p>}
           <p className="hint">
             {downloadFormat === 'svg'
               ? 'Vector — infinitely scalable, perfect for print.'
@@ -400,6 +474,7 @@ export default function QrGenerator() {
         }
 
         .panel {
+          min-width: 0;
           background: var(--panel);
           border: 2px solid var(--border);
           box-shadow: var(--shadow);
@@ -413,6 +488,8 @@ export default function QrGenerator() {
           max-height: calc(100vh - 48px);
           overflow-y: auto;
         }
+
+        .doodle-preview { position: static; max-height: none; overflow: visible; }
 
         @media (max-width: 900px) {
           .preview { position: static; max-height: none; }
@@ -460,6 +537,16 @@ export default function QrGenerator() {
           letter-spacing: 0.02em;
         }
 
+        .doodle-controls {
+          padding: 14px;
+          background: var(--bg);
+          border: 2px dashed var(--border);
+        }
+
+        .shuffle-btn { width: 100%; max-width: 400px; padding: 16px; font-size: 14px; }
+        .doodle-controls a { display: inline-block; color: var(--fg); }
+        .preview-error { max-width: 300px; padding: 24px; }
+
         .chip-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -480,7 +567,8 @@ export default function QrGenerator() {
           box-shadow: none;
         }
 
-        .chip.active {
+        .chip.active,
+        .chip.active:hover:not(:disabled) {
           background: var(--fg);
           color: var(--bg);
         }
@@ -523,6 +611,7 @@ export default function QrGenerator() {
         }
 
         .qr-frame {
+          max-width: 100%;
           border: 2px solid var(--border);
           box-shadow: var(--shadow);
           padding: 16px;
@@ -536,7 +625,8 @@ export default function QrGenerator() {
         .qr-canvas { display: flex; }
 
         .qr-canvas :global(svg),
-        .qr-canvas :global(canvas) {
+        .qr-canvas :global(canvas),
+        .doodle-image {
           display: block;
           max-width: 100%;
           height: auto;
