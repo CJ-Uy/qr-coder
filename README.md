@@ -2,19 +2,24 @@
 
 A client-side QR code designer with a small SVG API.
 
-Choose **Goofy Doodles** in Dot Pattern, enter your text or URL, and click
-**Randomize doodles** for a new cast of large cats, ghosts, fish, and blob
-monsters carrying the same message. Download the preview
-as SVG, PNG, JPEG, or WebP. Short messages give the doodles more room; use dark ink
-on a light background and test with your phone before printing.
+The **Illustrated** dot style brings Harbor's 32 faceless presets into the QR
+itself. Choose an occasion and preset for parties, food, shops, markets, music,
+celebrations, outdoors or community. Symbols keep their proportions and sit
+between scanner landmarks; small round data modules replace diagonal hatching.
+Click **Shuffle artwork** for a new arrangement carrying the same message.
+Download as SVG, PNG, JPEG or WebP. The classic QR styles remain available.
 
-Doodle mode supports up to 32 UTF-8 bytes. It shapes unused QR padding around the
-artwork and uses a bounded amount of error correction. This is experimental;
-scanner behavior can vary. The standard QR styles support longer content.
+Illustrated mode supports complete links or text through 384 UTF-8 bytes. It
+encodes the full payload and a terminator before shaping unused padding, with
+three correction codewords reserved per block. Oversized input shows an error;
+it is never truncated or silently converted. Choose a classic style for longer
+content. Use dark ink on a light background and test with your phone before printing.
 
-Run `npm test` with Node.js 22.18+ to check message recovery, the correction budget,
-corner markers, and quiet zone. Raw-padding support is tied to the pinned
-`qrcode-generator` 1.5.2 byte writer and must be reviewed before upgrading it.
+Run `pnpm test` to check all 32 presets at three seeds and two sizes (192 decode
+cases), complete message recovery, mixed-size block interleaving, correction
+reserve, protected markers, quiet zones and symbol proportions. The owned byte
+encoder uses `qrcode` for structural patterns; it does not override global byte
+writers. `qrcode-generator` remains in use by the standard SVG API.
 
 ## API
 
@@ -50,6 +55,17 @@ npm run preview
 ```
 
 ## Deploy
+
+The release tooling is pinned to Next.js 16.4.3 and OpenNext Cloudflare 1.20.14.
+The previous local combination built successfully but failed the Worker runtime
+smoke with a dynamic middleware-manifest require error. A related upstream
+report is [OpenNext issue 1258](https://github.com/opennextjs/opennextjs-cloudflare/issues/1258).
+Verify the built Worker and `/api/qr` before publishing; compilation alone does
+not establish that the runtime works.
+
+The repository uses pnpm's [hoisted dependency layout](https://pnpm.io/10.x/settings#nodelinker)
+because the Windows OpenNext trace produced unreadable copied dependency links
+with the isolated layout. Install with `pnpm install --frozen-lockfile` before building.
 
 Deploy the application to Cloudflare:
 
